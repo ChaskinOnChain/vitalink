@@ -1,6 +1,11 @@
-import { BASE_URL, generateFarcasterFrame, validateMessage } from "../../utils";
+import { BASE_URL, generateFarcasterFrame, validateMessage } from "../utils";
 
 export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    res.status(405).json({ error: "Method Not Allowed" });
+    return;
+  }
+
   const signedMessage = req.body;
 
   // Validate the signed message if it exists
