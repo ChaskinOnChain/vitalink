@@ -1,13 +1,6 @@
 import { getHubRpcClient, Message } from "@farcaster/hub-web";
 import { NextResponse } from "next/server";
 import { init, fetchQuery } from "@airstack/node";
-import { v2 as cloudinary } from "cloudinary";
-
-cloudinary.config({
-  cloud_name: "dp9p4tjtu",
-  api_key: "397974283734572",
-  api_secret: process.env.CLOUD,
-});
 
 export const BASE_URL = process.env.BASE_URL;
 
@@ -82,47 +75,33 @@ export async function generateFarcasterFrame(fID, choice) {
     return null; // Or handle this case as you see fit
   }
 
-  // Filter the images to exclude .gif files
-  const nonGifImages = data.TokenBalances.TokenBalance.map((tb) => {
+  const images = data.TokenBalances.TokenBalance.map((tb) => {
+    // Check if the nested properties exist
     if (
       tb.tokenNfts &&
       tb.tokenNfts.contentValue &&
-      tb.tokenNfts.contentValue.image &&
-      !tb.tokenNfts.contentValue.image.small.endsWith(".gif")
+      tb.tokenNfts.contentValue.image
     ) {
-      // Exclude .gif images
       return tb.tokenNfts.contentValue.image.small;
     }
     return null;
-  }).filter((image) => image !== null);
+  }).filter((image) => image !== null); // Filter out any null values
 
-  // Check if the filtered images array is empty
-  if (nonGifImages.length === 0) {
-    console.error("No suitable images found");
-    return null;
+  // Check if images array is empty
+  if (images.length === 0) {
+    console.error("No images found");
+    return null; // Or handle this case as you see fit
   }
 
-  const randomImage =
-    nonGifImages[Math.floor(Math.random() * nonGifImages.length)];
-
-  // Correctly encode the randomImage URL
-  const encodedRandomImageUrl = encodeURIComponent(randomImage);
-
-  // Construct the Cloudinary URL for the fetched image with transformations
-  const transformedImageUrl = cloudinary.url(encodedRandomImageUrl, {
-    type: "fetch",
-    transformation: [{ width: 1910, aspect_ratio: "1.91:1", crop: "pad" }],
-  });
-
-  // Log the transformed image URL
-  console.log("Transformed Image URL:", transformedImageUrl);
+  // Select a random image
+  const randomImage = images[Math.floor(Math.random() * images.length)];
 
   return `
     <!DOCTYPE html>
     <html lang="en">
     <head>
       <meta property="fc:frame" content="vNext" />
-      <meta property="fc:frame:image" content="${transformedImageUrl}" />
+      <meta property="fc:frame:image" content="${randomImage}" />
       <meta property="fc:frame:button:1" content="Ethereum" />
       <meta property="fc:frame:button:2" content="Base" />
       <meta property="fc:frame:button:3" content="Zora" />
