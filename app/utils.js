@@ -1,6 +1,13 @@
 import { getHubRpcClient, Message } from "@farcaster/hub-web";
 import { NextResponse } from "next/server";
 import { init, fetchQuery } from "@airstack/node";
+import { v2 as cloudinary } from "cloudinary";
+
+cloudinary.config({
+  cloud_name: "dp9p4tjtu",
+  api_key: "397974283734572",
+  api_secret: process.env.CLOUD,
+});
 
 export const BASE_URL = process.env.BASE_URL;
 
@@ -96,17 +103,18 @@ export async function generateFarcasterFrame(fID, choice) {
   // Select a random image
   const randomImage = images[Math.floor(Math.random() * images.length)];
 
-  // Construct the Cloudinary URL
-  const cloudinaryUrl = `https://res.cloudinary.com/dkhwfyhhl/image/fetch/w_1910,h_1000,c_fill,g_auto/${encodeURIComponent(
-    randomImage
-  )}`;
+  const transformedImageUrl = cloudinary.url(randomImage, {
+    transformation: [
+      { width: 1910, height: 1000, crop: "fill" }, // 'fill' ensures the image covers the entire area
+    ],
+  });
 
   return `
     <!DOCTYPE html>
     <html lang="en">
     <head>
       <meta property="fc:frame" content="vNext" />
-      <meta property="fc:frame:image" content="${cloudinaryUrl}" />
+      <meta property="fc:frame:image" content="${transformedImageUrl}" />
       <meta property="fc:frame:button:1" content="Ethereum" />
       <meta property="fc:frame:button:2" content="Base" />
       <meta property="fc:frame:button:3" content="Zora" />
