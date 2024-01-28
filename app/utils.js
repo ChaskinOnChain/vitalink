@@ -110,12 +110,9 @@ export async function generateFarcasterFrame(fID, choice) {
 
   // Construct the Cloudinary URL for the fetched image with transformations
   const transformedImageUrl = cloudinary.url(encodedRandomImageUrl, {
-    type: "fetch", // Use fetch to handle external URLs
-    secure: true, // Ensure the URL is HTTPS
-    transformation: [
-      { width: 1910, aspect_ratio: "1.91:1", crop: "fill" }, // Adjust width and crop to fit the aspect ratio
-      { quality: "auto", fetch_format: "auto" }, // Optimize quality and format
-    ],
+    type: "fetch",
+    secure: true,
+    transformation: [{ width: 1910, aspect_ratio: "1.91:1", crop: "pad" }],
   });
 
   // Log the transformed image URL
