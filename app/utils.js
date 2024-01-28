@@ -23,20 +23,67 @@ export async function generateFarcasterFrame(fID, choice) {
       blockchain = "ethereum"; // Default to ethereum if choice is invalid
   }
 
-  const query = `query NFTsOwnedByFarcasterUser {
-    TokenBalances(
-      input: {
-        filter: {
-          owner: { _in: ["fc_fid:${fID}"] }
-          tokenType: { _in: [ERC1155, ERC721] }
-        }
-        blockchain: ${blockchain}
-        limit: 50
-      }
-    ) {
-      // ... rest of your query
+  export async function generateFarcasterFrame(fID, choice) {
+    init(process.env.AIRSTACK_API);
+  
+    let blockchain;
+    switch (choice) {
+      case 1:
+        blockchain = "ethereum";
+        break;
+      case 2:
+        blockchain = "base";
+        break;
+      case 3:
+        blockchain = "zora";
+        break;
+      default:
+        blockchain = "ethereum"; // Default to ethereum if choice is invalid
     }
-  }`;
+  
+    // Ensure the GraphQL query is properly formatted
+    const query = `
+      query NFTsOwnedByFarcasterUser {
+        TokenBalances(
+          input: {
+            filter: {
+              owner: { _in: ["fc_fid:${fID}"] }
+              tokenType: { _in: [ERC1155, ERC721] }
+            }
+            blockchain: ${blockchain}
+            limit: 50
+          }
+        ) {
+          TokenBalance {
+            owner {
+              socials(input: { filter: { dappName: { _eq: farcaster } } }) {
+                profileName
+                userId
+                userAssociatedAddresses
+              }
+            }
+            amount
+            tokenAddress
+            tokenId
+            tokenType
+            tokenNfts {
+              contentValue {
+                image {
+                  extraSmall
+                  small
+                  medium
+                  large
+                }
+              }
+            }
+          }
+          pageInfo {
+            nextCursor
+            prevCursor
+          }
+        }
+      }
+    `;
 
   const { data, error } = await fetchQuery(query);
 
@@ -53,7 +100,7 @@ export async function generateFarcasterFrame(fID, choice) {
       tb.tokenNfts.contentValue &&
       tb.tokenNfts.contentValue.image
     ) {
-      return tb.tokenNfts.contentValue.image.medium;
+      return tb.tokenNfts.contentValue.image.small;
     }
     return null;
   }).filter((image) => image !== null); // Filter out any null values
