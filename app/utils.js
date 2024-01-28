@@ -95,13 +95,16 @@ export async function generateFarcasterFrame(fID, choice) {
 
   // Select a random image
   const randomImage = images[Math.floor(Math.random() * images.length)];
+  const cloudinaryUrl = `https://res.cloudinary.com/dkhwfyhhl/image/fetch/w_1910,h_1000,c_fill,g_auto/${encodeURIComponent(
+    imageUrl
+  )}`;
 
   return `
     <!DOCTYPE html>
     <html lang="en">
     <head>
       <meta property="fc:frame" content="vNext" />
-      <meta property="fc:frame:image" content="${randomImage}" />
+      <meta property="fc:frame:image" content="${cloudinaryUrl}" />
       <meta property="fc:frame:button:1" content="Ethereum" />
       <meta property="fc:frame:button:2" content="Base" />
       <meta property="fc:frame:button:3" content="Zora" />
