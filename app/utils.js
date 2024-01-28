@@ -47,7 +47,7 @@ const query = `query NFTsOwnedByFarcasterUser {
 
 // generate an html page with the relevant opengraph tags
 export async function generateFarcasterFrame(fID) {
-  init("a3e2d76f7afd4e6bb2202fcc57fd0132Y");
+  init(process.env.AIRSTACK_API);
   const { data, error } = await fetchQuery(query);
 
   // Check for error or if data is empty
