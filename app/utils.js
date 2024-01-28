@@ -89,7 +89,7 @@ export async function generateFarcasterFrame(fID, choice) {
       tb.tokenNfts.contentValue &&
       tb.tokenNfts.contentValue.image
     ) {
-      return tb.tokenNfts.contentValue.image.small;
+      return tb.tokenNfts.contentValue.image.extraSmall;
     }
     return null;
   }).filter((image) => image !== null); // Filter out any null values
