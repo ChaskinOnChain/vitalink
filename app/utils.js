@@ -106,14 +106,23 @@ export async function generateFarcasterFrame(fID, choice) {
   const randomImage =
     nonGifImages[Math.floor(Math.random() * nonGifImages.length)];
 
+  // Log the selected random image URL
+  console.log("Random Image URL:", randomImage);
+
+  // Encode the randomImage URL
+  const encodedRandomImageUrl = encodeURIComponent(randomImage);
+
   // Construct the Cloudinary URL for the fetched image with transformations
-  const transformedImageUrl = cloudinary.url(randomImage, {
-    type: "fetch", // Use fetch to handle external URLs
+  const transformedImageUrl = cloudinary.url(encodedRandomImageUrl, {
+    type: "fetch",
     transformation: [
-      { width: 1910, aspect_ratio: "1.91:1", crop: "fill" }, // Adjust width and crop to fit the aspect ratio
-      { quality: "auto", fetch_format: "auto" }, // Optimize quality and format
+      { width: 1910, aspect_ratio: "1.91:1", crop: "fill" },
+      { quality: "auto", fetch_format: "auto" },
     ],
   });
+
+  // Log the transformed image URL
+  console.log("Transformed Image URL:", transformedImageUrl);
 
   return `
     <!DOCTYPE html>
