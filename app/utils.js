@@ -102,6 +102,10 @@ export async function generateFarcasterFrame(fID, choice) {
     <head>
       <meta property="fc:frame" content="vNext" />
       <meta property="fc:frame:image" content="${randomImage}" />
+      <meta property="fc:frame:button:1" content="Ethereum" />
+      <meta property="fc:frame:button:2" content="Base" />
+      <meta property="fc:frame:button:3" content="Zora" />
+      <meta property="fc:frame:post_url" content="${process.env.BASE_URL}/api" />
     </head>
     <body>
       

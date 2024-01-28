@@ -13,7 +13,7 @@
   
   <!-- Text Element -->
   <text x="50%" y="50%" fill="white" style="font-size:100px; font-family:Arial; dominant-baseline:middle; text-anchor:middle;">
-    Click to show a random NFT you own
+    Click to show a chain to show a random NFT you own on that chain
   </text>
 
   <!-- Example Graphical Element (simple rectangle) -->

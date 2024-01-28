@@ -9,9 +9,9 @@ export async function generateMetadata() {
     other: {
       "fc:frame": "vNext",
       "fc:frame:image": `${process.env.BASE_URL}/ethereum.svg`,
-      "fc:frame:button:1": "Generate Random Ethereum NFT",
-      "fc:frame:button:2": "Generate Random Base NFT",
-      "fc:frame:button:3": "Generate Random Zora NFT",
+      "fc:frame:button:1": "Ethereum",
+      "fc:frame:button:2": "Base",
+      "fc:frame:button:3": "Zora",
       "fc:frame:post_url": `${process.env.BASE_URL}/api`,
     },
     metadataBase: new URL(process.env.BASE_URL ?? ""),
