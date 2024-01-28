@@ -11,7 +11,7 @@ export async function generateMetadata() {
       "fc:frame:image": `${process.env.BASE_URL}/question.jpg`,
       "fc:frame:button:1": "Yes",
       "fc:frame:button:2": "No",
-      "fc:frame:post_url": `${process.env.BASE_URL}/api`,
+      "fc:frame:post_url": `${process.env.BASE_URL}/api/answer`,
     },
     metadataBase: new URL(process.env.BASE_URL ?? ""),
   };

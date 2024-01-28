@@ -1,6 +1,6 @@
-import { BASE_URL, generateFarcasterFrame, validateMessage } from "../utils";
+import { BASE_URL, generateFarcasterFrame, validateMessage } from "../../utils";
 
-async function POST(req, res) {
+export async function POST(req, res) {
   if (req.method !== "POST") {
     res.status(405).json({ error: "Method Not Allowed" });
     return;
@@ -32,5 +32,3 @@ async function POST(req, res) {
 
   return res.status(200).setHeader("Content-Type", "text/html").send(html);
 }
-
-module.exports = POST;
