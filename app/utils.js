@@ -5,8 +5,23 @@ import { init, fetchQuery } from "@airstack/node";
 export const BASE_URL = process.env.BASE_URL;
 
 // generate an html page with the relevant opengraph tags
-export async function generateFarcasterFrame(fID) {
+export async function generateFarcasterFrame(fID, choice) {
   init(process.env.AIRSTACK_API);
+
+  let blockchain;
+  switch (choice) {
+    case 1:
+      blockchain = "ethereum";
+      break;
+    case 2:
+      blockchain = "base";
+      break;
+    case 3:
+      blockchain = "zora";
+      break;
+    default:
+      blockchain = "ethereum"; // Default to ethereum if choice is invalid
+  }
 
   const query = `query NFTsOwnedByFarcasterUser {
     TokenBalances(
@@ -15,37 +30,11 @@ export async function generateFarcasterFrame(fID) {
           owner: { _in: ["fc_fid:${fID}"] }
           tokenType: { _in: [ERC1155, ERC721] }
         }
-        blockchain: ethereum
+        blockchain: ${blockchain}
         limit: 50
       }
     ) {
-      TokenBalance {
-        owner {
-          socials(input: { filter: { dappName: { _eq: farcaster } } }) {
-            profileName
-            userId
-            userAssociatedAddresses
-          }
-        }
-        amount
-        tokenAddress
-        tokenId
-        tokenType
-        tokenNfts {
-          contentValue {
-            image {
-              extraSmall
-              small
-              medium
-              large
-            }
-          }
-        }
-      }
-      pageInfo {
-        nextCursor
-        prevCursor
-      }
+      // ... rest of your query
     }
   }`;
 

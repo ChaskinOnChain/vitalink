@@ -23,13 +23,13 @@ export async function POST(req) {
       }
     }
 
-    // const choice = signedMessage.untrustedData.buttonIndex;
-    // console.log("Choice from untrusted data:", choice);
+    const choice = signedMessage.untrustedData.buttonIndex;
+    console.log("Choice from untrusted data:", choice);
 
     let htmlContent = "";
 
     // Generate HTML based on the choice
-    htmlContent = await generateFarcasterFrame(fid);
+    htmlContent = await generateFarcasterFrame(fid, choice);
     console.log("Generated HTML content:", htmlContent);
 
     // Create a new response with HTML content
