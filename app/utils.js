@@ -89,7 +89,7 @@ export async function generateFarcasterFrame(fID, choice) {
       tb.tokenNfts.contentValue &&
       tb.tokenNfts.contentValue.image
     ) {
-      return tb.tokenNfts.contentValue.image.extraSmall;
+      return tb.tokenNfts.contentValue.image.small;
     }
     return null;
   }).filter((image) => image !== null); // Filter out any null values
@@ -103,10 +103,11 @@ export async function generateFarcasterFrame(fID, choice) {
   // Select a random image
   const randomImage = images[Math.floor(Math.random() * images.length)];
 
+  // Construct the Cloudinary URL for the fetched image with transformations
   const transformedImageUrl = cloudinary.url(encodeURIComponent(randomImage), {
     type: "fetch", // Specify that it's a fetched image
     transformation: [
-      { width: 1910, height: 1000, crop: "fit" }, // Apply the resizing transformation
+      { width: 1910, height: 1000, crop: "fit", background: "auto" }, // Resize and add background if needed
     ],
   });
 
