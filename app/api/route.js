@@ -1,8 +1,4 @@
-const {
-  BASE_URL,
-  generateFarcasterFrame,
-  validateMessage,
-} = require("../utils");
+import { BASE_URL, generateFarcasterFrame, validateMessage } from "../utils";
 
 async function POST(req, res) {
   if (req.method !== "POST") {
