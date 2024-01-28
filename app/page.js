@@ -4,14 +4,14 @@ export async function generateMetadata() {
     description: "Soup event",
     openGraph: {
       title: "Eventcaster RSVP test",
-      images: "question.jpg",
+      images: `${process.env.BASE_URL}/question.jpg`,
     },
     other: {
       "fc:frame": "vNext",
-      "fc:frame:image": "question.jpg",
+      "fc:frame:image": `${process.env.BASE_URL}/question.jpg`,
       "fc:frame:button:1": "Bob Saget",
       "fc:frame:button:2": "Nicolas Cage",
-      "fc:frame:post_url": "/api",
+      "fc:frame:post_url": `${process.env.BASE_URL}/api`,
     },
     metadataBase: new URL(process.env.BASE_URL ?? ""),
   };
