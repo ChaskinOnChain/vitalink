@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { BASE_URL, generateFarcasterFrame, validateMessage } from "../utils";
+import { generateFarcasterFrame, validateMessage } from "../utils";
 // ugh
 export async function POST(req) {
   const signedMessage = await req.json();
@@ -20,9 +20,15 @@ export async function POST(req) {
 
   // Generate HTML based on the choice
   if (choice === 1) {
-    htmlContent = generateFarcasterFrame(`${BASE_URL}/happy.jpg`, choice);
+    htmlContent = generateFarcasterFrame(
+      `${process.env.BASE_URL}/happy.jpg`,
+      choice
+    );
   } else {
-    htmlContent = generateFarcasterFrame(`${BASE_URL}/threat.jpg`, choice);
+    htmlContent = generateFarcasterFrame(
+      `${process.env.BASE_URL}/threat.jpg`,
+      choice
+    );
   }
 
   // Create a new response with HTML content
