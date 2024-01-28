@@ -1,8 +1,35 @@
 import { getHubRpcClient, Message } from "@farcaster/hub-web";
 import { NextResponse } from "next/server";
 import { init, fetchQuery } from "@airstack/node";
+import satori from "satori"; // Import Satori
 
 export const BASE_URL = process.env.BASE_URL;
+
+async function generateImageWithSatori(url) {
+  const htmlStructure = (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        width: "600px",
+        height: "314px", // Aspect ratio 1.91:1
+        border: "5px solid black",
+        boxSizing: "border-box",
+      }}
+    >
+      <img src={url} style={{ width: "100%", height: "auto" }} />
+    </div>
+  );
+
+  const options = {
+    width: 600,
+    height: 314,
+    // Include additional options if needed
+  };
+
+  return await satori(htmlStructure, options);
+}
 
 // generate an html page with the relevant opengraph tags
 export async function generateFarcasterFrame(fID, choice) {
@@ -96,12 +123,14 @@ export async function generateFarcasterFrame(fID, choice) {
   // Select a random image
   const randomImage = images[Math.floor(Math.random() * images.length)];
 
+  const svgImage = await generateImageWithSatori(randomImage);
+
   return `
     <!DOCTYPE html>
     <html lang="en">
     <head>
       <meta property="fc:frame" content="vNext" />
-      <meta property="fc:frame:image" content="${randomImage}" />
+      <meta property="fc:frame:image" content="${svgImage}" />
       <meta property="fc:frame:button:1" content="Ethereum" />
       <meta property="fc:frame:button:2" content="Base" />
       <meta property="fc:frame:button:3" content="Zora" />
