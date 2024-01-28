@@ -11,11 +11,18 @@
   <!-- Background Rect -->
   <rect width="100%" height="100%" fill="url(#grad1)" />
   
-  <!-- Text Element -->
-  <text x="50%" y="50%" fill="white" style="font-size:100px; font-family:Arial; dominant-baseline:middle; text-anchor:middle;">
-    Click to show a chain to show a random NFT you own on that chain
+  <!-- Text Elements -->
+  <text x="50%" y="40%" fill="white" style="font-size:80px; font-family:Arial; dominant-baseline:middle; text-anchor:middle;">
+    Click to show a random
+  </text>
+  <text x="50%" y="50%" fill="white" style="font-size:80px; font-family:Arial; dominant-baseline:middle; text-anchor:middle;">
+    NFT you own on
+  </text>
+  <text x="50%" y="60%" fill="white" style="font-size:80px; font-family:Arial; dominant-baseline:middle; text-anchor:middle;">
+    a selected chain
   </text>
 
-  <!-- Example Graphical Element (simple rectangle) -->
-  <rect x="10" y="10" width="100" height="50" fill="navy" />
+  <!-- Additional Graphical Elements -->
+  <rect x="850" y="920" width="210" height="60" fill="navy" />
+  <circle cx="955" cy="950" r="30" fill="white" />
 </svg>
