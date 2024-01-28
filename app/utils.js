@@ -103,7 +103,8 @@ export async function generateFarcasterFrame(fID, choice) {
   }
 
   // Select a random image
-  const randomImage = nonGifImages[Math.floor(Math.random() * images.length)];
+  const randomImage =
+    nonGifImages[Math.floor(Math.random() * nonGifImages.length)];
 
   // Construct the Cloudinary URL for the fetched image with transformations
   const transformedImageUrl = cloudinary.url(randomImage, {
