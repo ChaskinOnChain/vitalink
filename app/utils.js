@@ -103,9 +103,10 @@ export async function generateFarcasterFrame(fID, choice) {
   // Select a random image
   const randomImage = images[Math.floor(Math.random() * images.length)];
 
-  const transformedImageUrl = cloudinary.url(randomImage, {
+  const transformedImageUrl = cloudinary.url(encodeURIComponent(randomImage), {
+    type: "fetch", // Specify that it's a fetched image
     transformation: [
-      { width: 1910, height: 1000, crop: "fill" }, // 'fill' ensures the image covers the entire area
+      { width: 1910, height: 1000, crop: "fill" }, // Apply the resizing transformation
     ],
   });
 
