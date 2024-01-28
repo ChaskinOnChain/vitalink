@@ -1,4 +1,5 @@
 import { getHubRpcClient, Message } from "@farcaster/hub-web";
+import { NextResponse } from "next/server";
 
 export const BASE_URL = process.env.BASE_URL;
 
@@ -20,11 +21,23 @@ export function generateFarcasterFrame(image) {
 }
 
 export async function validateMessage(messageBytes) {
-  const client = getHubRpcClient("https://nemes.farcaster.xyz:2283", {});
-  const hubMessage = Message.decode(Buffer.from(messageBytes, "hex"));
-  const res = await client.validateMessage(hubMessage);
+  try {
+    const client = getHubRpcClient("https://nemes.farcaster.xyz:2283", {});
+    const hubMessage = Message.decode(Buffer.from(messageBytes, "hex"));
+    const res = await client.validateMessage(hubMessage);
 
-  if (res.isOk() && res.value.valid) {
-    return res.value.valid;
+    if (res.isOk() && res.value.valid) {
+      // If valid, proceed with the next response
+      return NextResponse.next();
+    } else {
+      // If invalid, return a JSON response with a 400 status code
+      return NextResponse.json({ error: "Invalid message" }, { status: 400 });
+    }
+  } catch (error) {
+    // In case of any other errors, return a 500 Internal Server Error
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }
