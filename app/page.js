@@ -1,3 +1,4 @@
+// future of social
 export async function generateMetadata() {
   return {
     title: "Soup test",
