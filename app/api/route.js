@@ -29,7 +29,7 @@ export async function POST(req) {
     let htmlContent = "";
 
     // Generate HTML based on the choice
-    htmlContent = generateFarcasterFrame(fid);
+    htmlContent = await generateFarcasterFrame(fid);
     console.log("Generated HTML content:", htmlContent);
 
     // Create a new response with HTML content
