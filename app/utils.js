@@ -95,6 +95,8 @@ export async function generateFarcasterFrame(fID, choice) {
 
   // Select a random image
   const randomImage = images[Math.floor(Math.random() * images.length)];
+
+  // Construct the Cloudinary URL
   const cloudinaryUrl = `https://res.cloudinary.com/dkhwfyhhl/image/fetch/w_1910,h_1000,c_fill,g_auto/${encodeURIComponent(
     randomImage
   )}`;
