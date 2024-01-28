@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { BASE_URL, generateFarcasterFrame, validateMessage } from "../utils";
-
+// ugh
 export async function POST(req) {
   const signedMessage = await req.json();
 
