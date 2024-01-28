@@ -9,8 +9,8 @@ export async function generateMetadata() {
     other: {
       "fc:frame": "vNext",
       "fc:frame:image": "question.jpg",
-      "fc:frame:button:1": "Bob Saget",
-      "fc:frame:button:2": "Nicolas Cage",
+      "fc:frame:button:1": "Bob",
+      "fc:frame:button:2": "Nic",
       "fc:frame:post_url": "/api",
     },
     metadataBase: new URL(process.env.BASE_URL ?? ""),
