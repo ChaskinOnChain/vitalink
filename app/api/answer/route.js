@@ -1,6 +1,6 @@
 import { BASE_URL, generateFarcasterFrame, validateMessage } from "../../utils";
 
-export async function POST(req, res) {
+export default async function handler(req, res) {
   if (req.method !== "POST") {
     res.status(405).json({ error: "Method Not Allowed" });
     return;
@@ -8,8 +8,7 @@ export async function POST(req, res) {
 
   const signedMessage = req.body;
 
-  // `trustedData` doesn't get returned by the Warpcast embed debugger, but we should validate it if it's there
-  // This if statement should probs be removed in prod
+  // Validate the signed message if it exists
   if (signedMessage.trustedData) {
     const isMessageValid = await validateMessage(
       signedMessage.trustedData.messageBytes
@@ -21,14 +20,16 @@ export async function POST(req, res) {
   }
 
   const choice = signedMessage.untrustedData.buttonIndex;
-
   let html = "";
 
+  // Generate HTML based on the choice
   if (choice === 1) {
     html = generateFarcasterFrame(`${BASE_URL}/happy.jpg`, choice);
   } else {
     html = generateFarcasterFrame(`${BASE_URL}/threat.jpg`, choice);
   }
 
-  return res.status(200).setHeader("Content-Type", "text/html").send(html);
+  // Send the response
+  res.setHeader("Content-Type", "text/html");
+  return res.status(200).send(html);
 }
