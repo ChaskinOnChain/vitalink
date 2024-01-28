@@ -4,47 +4,6 @@ import { init, fetchQuery } from "@airstack/node";
 
 export const BASE_URL = process.env.BASE_URL;
 
-const query = `query NFTsOwnedByFarcasterUser {
-  TokenBalances(
-    input: {
-      filter: {
-        owner: { _in: ["fc_fid:${fID}"] }
-        tokenType: { _in: [ERC1155, ERC721] }
-      }
-      blockchain: ethereum
-      limit: 50
-    }
-  ) {
-    TokenBalance {
-      owner {
-        socials(input: { filter: { dappName: { _eq: farcaster } } }) {
-          profileName
-          userId
-          userAssociatedAddresses
-        }
-      }
-      amount
-      tokenAddress
-      tokenId
-      tokenType
-      tokenNfts {
-        contentValue {
-          image {
-            extraSmall
-            small
-            medium
-            large
-          }
-        }
-      }
-    }
-    pageInfo {
-      nextCursor
-      prevCursor
-    }
-  }
-}`;
-
 // generate an html page with the relevant opengraph tags
 export async function generateFarcasterFrame(fID) {
   init(process.env.AIRSTACK_API);
@@ -98,10 +57,23 @@ export async function generateFarcasterFrame(fID) {
     return null; // Or handle this case as you see fit
   }
 
-  // Extract medium-sized images
-  const images = data.TokenBalances.TokenBalance.map(
-    (tb) => tb.tokenNfts.contentValue.image.medium
-  );
+  const images = data.TokenBalances.TokenBalance.map((tb) => {
+    // Check if the nested properties exist
+    if (
+      tb.tokenNfts &&
+      tb.tokenNfts.contentValue &&
+      tb.tokenNfts.contentValue.image
+    ) {
+      return tb.tokenNfts.contentValue.image.medium;
+    }
+    return null;
+  }).filter((image) => image !== null); // Filter out any null values
+
+  // Check if images array is empty
+  if (images.length === 0) {
+    console.error("No images found");
+    return null; // Or handle this case as you see fit
+  }
 
   // Select a random image
   const randomImage = images[Math.floor(Math.random() * images.length)];

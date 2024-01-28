@@ -1,4 +1,21 @@
 <?xml version="1.0" ?>
-<svg xmlns="http://www.w3.org/2000/svg" width="500" height="100" version="1.1">
-  <text x="10" y="50" fill="black" style="font-size:20px; font-family:Arial">Click to show a random Ethereum NFT you own</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1910" height="1000" version="1.1">
+  <!-- Gradient Definition -->
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:rgb(34,193,195);stop-opacity:1" />
+      <stop offset="100%" style="stop-color:rgb(253,187,45);stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background Rect -->
+  <rect width="100%" height="100%" fill="url(#grad1)" />
+  
+  <!-- Text Element -->
+  <text x="50%" y="50%" fill="white" style="font-size:40px; font-family:Arial; dominant-baseline:middle; text-anchor:middle;">
+    Click to show a random Ethereum NFT you own
+  </text>
+
+  <!-- Example Graphical Element (simple rectangle) -->
+  <rect x="10" y="10" width="100" height="50" fill="navy" />
 </svg>
