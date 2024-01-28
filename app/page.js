@@ -4,11 +4,11 @@ export async function generateMetadata() {
     description: "Random Ethereum NFT",
     openGraph: {
       title: "Random Ethereum",
-      images: `${process.env.BASE_URL}/ethereum_nft.svg`,
+      images: `${process.env.BASE_URL}/ethereum.svg`,
     },
     other: {
       "fc:frame": "vNext",
-      "fc:frame:image": `${process.env.BASE_URL}/ethereum_nft.svg`,
+      "fc:frame:image": `${process.env.BASE_URL}/ethereum.svg`,
       "fc:frame:button:1": "Generate Random Ethereum NFT",
       "fc:frame:post_url": `${process.env.BASE_URL}/api`,
     },
