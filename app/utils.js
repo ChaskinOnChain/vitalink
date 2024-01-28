@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { init, fetchQuery } from "@airstack/node";
 
 export const BASE_URL = process.env.BASE_URL;
-// hi
+
 const query = `query NFTsOwnedByFarcasterUser {
   TokenBalances(
     input: {
