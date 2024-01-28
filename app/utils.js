@@ -48,6 +48,48 @@ const query = `query NFTsOwnedByFarcasterUser {
 // generate an html page with the relevant opengraph tags
 export async function generateFarcasterFrame(fID) {
   init(process.env.AIRSTACK_API);
+
+  const query = `query NFTsOwnedByFarcasterUser {
+    TokenBalances(
+      input: {
+        filter: {
+          owner: { _in: ["fc_fid:${fID}"] }
+          tokenType: { _in: [ERC1155, ERC721] }
+        }
+        blockchain: ethereum
+        limit: 50
+      }
+    ) {
+      TokenBalance {
+        owner {
+          socials(input: { filter: { dappName: { _eq: farcaster } } }) {
+            profileName
+            userId
+            userAssociatedAddresses
+          }
+        }
+        amount
+        tokenAddress
+        tokenId
+        tokenType
+        tokenNfts {
+          contentValue {
+            image {
+              extraSmall
+              small
+              medium
+              large
+            }
+          }
+        }
+      }
+      pageInfo {
+        nextCursor
+        prevCursor
+      }
+    }
+  }`;
+
   const { data, error } = await fetchQuery(query);
 
   // Check for error or if data is empty
