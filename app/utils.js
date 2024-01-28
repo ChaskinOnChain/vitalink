@@ -23,26 +23,8 @@ export async function generateFarcasterFrame(fID, choice) {
       blockchain = "ethereum"; // Default to ethereum if choice is invalid
   }
 
-  export async function generateFarcasterFrame(fID, choice) {
-    init(process.env.AIRSTACK_API);
-  
-    let blockchain;
-    switch (choice) {
-      case 1:
-        blockchain = "ethereum";
-        break;
-      case 2:
-        blockchain = "base";
-        break;
-      case 3:
-        blockchain = "zora";
-        break;
-      default:
-        blockchain = "ethereum"; // Default to ethereum if choice is invalid
-    }
-  
-    // Ensure the GraphQL query is properly formatted
-    const query = `
+  // Ensure the GraphQL query is properly formatted
+  const query = `
       query NFTsOwnedByFarcasterUser {
         TokenBalances(
           input: {
