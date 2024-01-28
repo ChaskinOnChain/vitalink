@@ -106,7 +106,7 @@ export async function generateFarcasterFrame(fID, choice) {
   const transformedImageUrl = cloudinary.url(encodeURIComponent(randomImage), {
     type: "fetch", // Specify that it's a fetched image
     transformation: [
-      { width: 1910, height: 1000, crop: "fill" }, // Apply the resizing transformation
+      { width: 1910, height: 1000, crop: "fit" }, // Apply the resizing transformation
     ],
   });
 
