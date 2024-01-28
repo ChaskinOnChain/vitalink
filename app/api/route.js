@@ -2,7 +2,7 @@ const {
   BASE_URL,
   generateFarcasterFrame,
   validateMessage,
-} = require("@/utils");
+} = require("../utils");
 
 async function POST(req, res) {
   if (req.method !== "POST") {

@@ -1,4 +1,3 @@
-// hi
 export async function generateMetadata() {
   return {
     title: "Eventcaster RSVP test",
