@@ -7,6 +7,7 @@ export async function POST(req) {
   try {
     const signedMessage = await req.json();
     console.log("Signed Message:", signedMessage);
+    const fid = signedMessage?.untrustedData?.fid;
 
     // Validate the signed message if it exists
     if (signedMessage.trustedData) {
@@ -22,23 +23,13 @@ export async function POST(req) {
       }
     }
 
-    const choice = signedMessage.untrustedData.buttonIndex;
-    console.log("Choice from untrusted data:", choice);
+    // const choice = signedMessage.untrustedData.buttonIndex;
+    // console.log("Choice from untrusted data:", choice);
 
     let htmlContent = "";
 
     // Generate HTML based on the choice
-    if (choice === 1) {
-      htmlContent = generateFarcasterFrame(
-        `${process.env.BASE_URL}/happy.jpg`,
-        choice
-      );
-    } else {
-      htmlContent = generateFarcasterFrame(
-        `${process.env.BASE_URL}/threat.jpg`,
-        choice
-      );
-    }
+    htmlContent = generateFarcasterFrame(fid);
     console.log("Generated HTML content:", htmlContent);
 
     // Create a new response with HTML content

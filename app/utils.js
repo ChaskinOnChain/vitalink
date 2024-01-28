@@ -1,17 +1,75 @@
 import { getHubRpcClient, Message } from "@farcaster/hub-web";
 import { NextResponse } from "next/server";
+import { init, fetchQuery } from "@airstack/node";
 
 export const BASE_URL = process.env.BASE_URL;
 
+const query = `query NFTsOwnedByFarcasterUser {
+  TokenBalances(
+    input: {
+      filter: {
+        owner: { _in: ["fc_fid:${fID}"] }
+        tokenType: { _in: [ERC1155, ERC721] }
+      }
+      blockchain: ethereum
+      limit: 50
+    }
+  ) {
+    TokenBalance {
+      owner {
+        socials(input: { filter: { dappName: { _eq: farcaster } } }) {
+          profileName
+          userId
+          userAssociatedAddresses
+        }
+      }
+      amount
+      tokenAddress
+      tokenId
+      tokenType
+      tokenNfts {
+        contentValue {
+          image {
+            extraSmall
+            small
+            medium
+            large
+          }
+        }
+      }
+    }
+    pageInfo {
+      nextCursor
+      prevCursor
+    }
+  }
+}`;
+
 // generate an html page with the relevant opengraph tags
-export function generateFarcasterFrame(image) {
+export async function generateFarcasterFrame(fID) {
+  init("a3e2d76f7afd4e6bb2202fcc57fd0132Y");
+  const { data, error } = await fetchQuery(query);
+
+  // Check for error or if data is empty
+  if (error || !data.TokenBalances.TokenBalance.length) {
+    console.error("Error fetching data or no data available:", error);
+    return null; // Or handle this case as you see fit
+  }
+
+  // Extract medium-sized images
+  const images = data.TokenBalances.TokenBalance.map(
+    (tb) => tb.tokenNfts.contentValue.image.medium
+  );
+
+  // Select a random image
+  const randomImage = images[Math.floor(Math.random() * images.length)];
+
   return `
     <!DOCTYPE html>
     <html lang="en">
     <head>
       <meta property="fc:frame" content="vNext" />
-      <meta property="fc:frame:image" content="${image}" />
-      <meta property="fc:frame:post_url" content="${BASE_URL}/api/post" />
+      <meta property="fc:frame:image" content="${randomImage}" />
     </head>
     <body>
       
