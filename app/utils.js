@@ -82,32 +82,35 @@ export async function generateFarcasterFrame(fID, choice) {
     return null; // Or handle this case as you see fit
   }
 
-  const images = data.TokenBalances.TokenBalance.map((tb) => {
-    // Check if the nested properties exist
+  // Filter the images to exclude .gif files
+  const nonGifImages = data.TokenBalances.TokenBalance.map((tb) => {
     if (
       tb.tokenNfts &&
       tb.tokenNfts.contentValue &&
-      tb.tokenNfts.contentValue.image
+      tb.tokenNfts.contentValue.image &&
+      !tb.tokenNfts.contentValue.image.small.endsWith(".gif")
     ) {
+      // Exclude .gif images
       return tb.tokenNfts.contentValue.image.small;
     }
     return null;
-  }).filter((image) => image !== null); // Filter out any null values
+  }).filter((image) => image !== null);
 
-  // Check if images array is empty
-  if (images.length === 0) {
-    console.error("No images found");
-    return null; // Or handle this case as you see fit
+  // Check if the filtered images array is empty
+  if (nonGifImages.length === 0) {
+    console.error("No suitable images found");
+    return null;
   }
 
   // Select a random image
-  const randomImage = images[Math.floor(Math.random() * images.length)];
+  const randomImage = nonGifImages[Math.floor(Math.random() * images.length)];
 
   // Construct the Cloudinary URL for the fetched image with transformations
-  const transformedImageUrl = cloudinary.url(encodeURIComponent(randomImage), {
-    type: "fetch", // Specify that it's a fetched image
+  const transformedImageUrl = cloudinary.url(randomImage, {
+    type: "fetch", // Use fetch to handle external URLs
     transformation: [
-      { width: 1910, height: 1000, crop: "fit", background: "auto" }, // Resize and add background if needed
+      { width: 1910, aspect_ratio: "1.91:1", crop: "fill" }, // Adjust width and crop to fit the aspect ratio
+      { quality: "auto", fetch_format: "auto" }, // Optimize quality and format
     ],
   });
 
