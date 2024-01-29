@@ -60,12 +60,6 @@ async function fetchFollowing(fid) {
   );
 }
 
-  console.log(
-    `No connection found through Vitalik's following for FID ${inputFid}`
-  );
-  return [];
-}
-
 async function fetchFollowers(fid) {
   let query = fetchFollowersQuery(fid);
   let { data, error } = await fetchQuery(query);
@@ -130,30 +124,22 @@ async function checkDirectOrSecondDegreeConnection(
     `Checking direct and second-degree connections for FID ${inputFid}`
   );
 
-  let vitalikFollowers = await fetchFollowers(vitalikFid);
-  console.log(`Vitalik's followers: ${vitalikFollowers.length}`);
+  let vitalikFollowing = await fetchFollowing(vitalikFid);
+  console.log(`Vitalik is following ${vitalikFollowing.length} accounts`);
 
-  if (vitalikFollowers.includes(inputFid)) {
-    console.log(
-      `Direct connection found between ${vitalikFid} and ${inputFid}`
-    );
-    return [vitalikFid, inputFid];
-  }
+  for (let followingFid of vitalikFollowing) {
+    let followingFollowers = await fetchFollowers(followingFid);
 
-  for (let followerFid of vitalikFollowers) {
-    console.log(`Checking followers of ${followerFid}`);
-    let followerFollowers = await fetchFollowers(followerFid);
-
-    if (followerFollowers.includes(inputFid)) {
+    if (followingFollowers.includes(inputFid)) {
       console.log(
-        `Second-degree connection found: ${vitalikFid} -> ${followerFid} -> ${inputFid}`
+        `Connection found: ${vitalikFid} -> ${followingFid} -> ${inputFid}`
       );
-      return [vitalikFid, followerFid, inputFid];
+      return [vitalikFid, followingFid, inputFid];
     }
   }
 
   console.log(
-    `No direct or second-degree connection found for FID ${inputFid}`
+    `No connection found through Vitalik's following for FID ${inputFid}`
   );
   return [];
 }
