@@ -1,7 +1,7 @@
 import { getHubRpcClient, Message } from "@farcaster/hub-web";
 import { NextResponse } from "next/server";
 import { init, fetchQuery } from "@airstack/node";
-
+// hi
 export const BASE_URL = process.env.BASE_URL;
 
 async function fetchFarcasterFollowers(fid) {
