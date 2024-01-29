@@ -4,72 +4,61 @@ import { init, fetchQuery } from "@airstack/node";
 // hi
 export const BASE_URL = process.env.BASE_URL;
 
-async function fetchFarcasterFollowers(fid) {
-  const query = `
-    query {
-      SocialFollowers(input: {
-        filter: {
-          dappName: { _eq: "farcaster" }
-          identity: { _eq: "${fid}" }
-        }
-        limit: 50000
-      }) {
-        Follower {
-          followingAddress {
-            addresses
-            socials(input: { filter: { dappName: { _eq: "farcaster" } } }) {
-              userId
-            }
+const fetchFollowersQuery = (fid) => `
+  query {
+    SocialFollowers(input: {
+      filter: {
+        dappName: { _eq: "farcaster" }
+        identity: { _eq: "${fid}" }
+      }
+      limit: 200
+    }) {
+      Follower {
+        followerAddress {
+          socials(input: { filter: { dappName: { _eq: "farcaster" } } }) {
+            userId
           }
         }
       }
     }
-  `;
+  }
+`;
 
+async function fetchFollowers(fid) {
+  const query = fetchFollowersQuery(fid);
   const { data, error } = await fetchQuery(query);
-  console.log(`Fetching followers for FID: ${fid}`);
   if (error) {
     console.error(`Error fetching followers for FID ${fid}:`, error);
     return [];
-  } else {
-    console.log(`Followers data for FID ${fid}:`, data);
-    return data.SocialFollowers.Follower;
   }
+  return data.SocialFollowers.Follower.map(
+    (f) => f.followerAddress.socials[0].userId
+  );
 }
 
-async function findConnectionPath(startFid, targetFid) {
-  let queue = [startFid];
+async function findConnectionPath(startFid, targetFid = 5650) {
+  let queue = [{ fid: startFid, path: [] }];
   let visited = new Set();
-  let pathTracker = { [startFid]: [] };
-
-  console.log(
-    `Starting connection path search from ${startFid} to ${targetFid}`
-  );
 
   while (queue.length > 0) {
-    const currentFid = queue.shift();
-    console.log(`Processing FID: ${currentFid}`);
+    const { fid, path } = queue.shift();
 
-    if (currentFid === targetFid) {
-      console.log(`Connection path found:`, pathTracker[currentFid]);
-      return pathTracker[currentFid];
+    if (fid === targetFid) {
+      return path.concat(fid);
     }
 
-    visited.add(currentFid);
-    const followers = await fetchFarcasterFollowers(currentFid);
+    if (!visited.has(fid)) {
+      visited.add(fid);
+      const followers = await fetchFollowers(fid);
 
-    for (const follower of followers) {
-      const followerId = follower.followingAddress.socials[0].userId;
-      if (!visited.has(followerId)) {
-        queue.push(followerId);
-        pathTracker[followerId] = [...pathTracker[currentFid], currentFid];
-        console.log(`Added FID ${followerId} to queue`);
+      for (const followerFid of followers) {
+        if (!visited.has(followerFid)) {
+          queue.push({ fid: followerFid, path: path.concat(fid) });
+        }
       }
     }
   }
-
-  console.log("No connection path found");
-  return [];
+  return []; // Path not found
 }
 
 // generate an html page with the relevant opengraph tags
