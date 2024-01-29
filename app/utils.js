@@ -28,13 +28,24 @@ const fetchFollowersQuery = (fid) => `
 async function fetchFollowers(fid) {
   const query = fetchFollowersQuery(fid);
   const { data, error } = await fetchQuery(query);
+
   if (error) {
     console.error(`Error fetching followers for FID ${fid}:`, error);
     return [];
   }
-  return data.SocialFollowers.Follower.map(
-    (f) => f.followerAddress.socials[0].userId
-  );
+
+  // Check if the data is structured as expected
+  if (!data || !data.SocialFollowers || !data.SocialFollowers.Follower) {
+    console.warn(`No followers data found for FID ${fid}`);
+    return [];
+  }
+
+  return data.SocialFollowers.Follower.filter(
+    (f) =>
+      f.followerAddress &&
+      f.followerAddress.socials &&
+      f.followerAddress.socials.length > 0
+  ).map((f) => f.followerAddress.socials[0].userId);
 }
 
 async function findConnectionPath(startFid, targetFid = 5650) {
