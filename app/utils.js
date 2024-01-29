@@ -62,7 +62,7 @@ async function findConnectionPath(startFid, targetFid) {
 export async function generateFarcasterFrame(fID) {
   init(process.env.AIRSTACK_API);
 
-  const connectionPath = await fetchFarcasterFollowers(fID);
+  const connectionPath = await findConnectionPath(fID);
   console.log("Connection Path:", connectionPath);
 
   // return `
