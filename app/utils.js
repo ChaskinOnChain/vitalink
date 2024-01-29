@@ -8,15 +8,15 @@ const fetchFollowersQuery = (fid) => `
   query {
     SocialFollowers(input: {
       filter: {
-        dappName: _eq: farcaster
-        identity: { _eq: "${fid}" }
+        dappName: { _eq: farcaster }
+        identity: { _in: ["fc_fid:${fid}"] }
       }
       blockchain: ALL
       limit: 50000
     }) {
       Follower {
         followerAddress {
-          socials(input: { filter: { dappName: _eq: farcaster } }) {
+          socials(input: { filter: { dappName: { _eq: farcaster } } }) {
             userId
           }
         }
