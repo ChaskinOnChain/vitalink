@@ -58,40 +58,46 @@ async function fetchFollowers(fid) {
   return allFollowers;
 }
 
-async function findConnectionPath(startFid, targetFid = 5650, maxDepth = 5) {
+async function findConnectionPath(
+  startFid,
+  targetFid = 5650,
+  maxDepth = 5,
+  timeLimit = 9000
+) {
   let queue = [{ fid: startFid, path: [], depth: 0 }];
   let visited = new Set();
+  let startTime = Date.now();
 
   while (queue.length > 0) {
-    let batch = queue.splice(0, 10); // Process in batches of 10
-    let followerPromises = batch.map(({ fid }) => fetchFollowers(fid));
+    const { fid, path, depth } = queue.shift();
 
-    let results = await Promise.all(followerPromises);
+    // Check for time limit
+    if (Date.now() - startTime > timeLimit) {
+      console.warn("Approaching time limit, terminating search");
+      return []; // Return an empty path or partial path as needed
+    }
 
-    for (let i = 0; i < batch.length; i++) {
-      let { fid, path, depth } = batch[i];
-      let followers = results[i];
+    if (fid === targetFid) {
+      return path.concat(fid);
+    }
 
-      if (depth > maxDepth) continue; // Limit search depth
+    if (!visited.has(fid) && depth <= maxDepth) {
+      visited.add(fid);
+      const followers = await fetchFollowers(fid); // Consider adding error handling here
 
-      if (fid === targetFid) {
-        return path.concat(fid);
-      }
-
-      if (!visited.has(fid)) {
-        visited.add(fid);
-        for (const followerFid of followers) {
-          if (!visited.has(followerFid)) {
-            queue.push({
-              fid: followerFid,
-              path: path.concat(fid),
-              depth: depth + 1,
-            });
-          }
+      for (const followerFid of followers) {
+        if (!visited.has(followerFid)) {
+          queue.unshift({
+            // DFS approach: add to the front of the queue
+            fid: followerFid,
+            path: path.concat(fid),
+            depth: depth + 1,
+          });
         }
       }
     }
   }
+
   return []; // Path not found
 }
 
