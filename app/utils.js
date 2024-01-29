@@ -12,7 +12,7 @@ async function fetchFarcasterFollowers(fid) {
           dappName: { _eq: "farcaster" }
           identity: { _eq: "${fid}" }
         }
-        limit: 200
+        limit: 50000
       }) {
         Follower {
           followingAddress {
@@ -27,7 +27,14 @@ async function fetchFarcasterFollowers(fid) {
   `;
 
   const { data, error } = await fetchQuery(query);
-  return error ? [] : data.SocialFollowers.Follower;
+  console.log(`Fetching followers for FID: ${fid}`);
+  if (error) {
+    console.error(`Error fetching followers for FID ${fid}:`, error);
+    return [];
+  } else {
+    console.log(`Followers data for FID ${fid}:`, data);
+    return data.SocialFollowers.Follower;
+  }
 }
 
 async function findConnectionPath(startFid, targetFid) {
@@ -35,10 +42,16 @@ async function findConnectionPath(startFid, targetFid) {
   let visited = new Set();
   let pathTracker = { [startFid]: [] };
 
+  console.log(
+    `Starting connection path search from ${startFid} to ${targetFid}`
+  );
+
   while (queue.length > 0) {
     const currentFid = queue.shift();
+    console.log(`Processing FID: ${currentFid}`);
 
     if (currentFid === targetFid) {
+      console.log(`Connection path found:`, pathTracker[currentFid]);
       return pathTracker[currentFid];
     }
 
@@ -48,14 +61,15 @@ async function findConnectionPath(startFid, targetFid) {
     for (const follower of followers) {
       const followerId = follower.followingAddress.socials[0].userId;
       if (!visited.has(followerId)) {
-        visited.add(followerId);
         queue.push(followerId);
         pathTracker[followerId] = [...pathTracker[currentFid], currentFid];
+        console.log(`Added FID ${followerId} to queue`);
       }
     }
   }
 
-  return []; // No connection path found
+  console.log("No connection path found");
+  return [];
 }
 
 // generate an html page with the relevant opengraph tags

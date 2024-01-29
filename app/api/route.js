@@ -2,20 +2,15 @@ import { NextResponse } from "next/server";
 import { generateFarcasterFrame, validateMessage } from "../utils";
 // hi
 export async function POST(req) {
-  console.log("POST request received");
-
   try {
     const signedMessage = await req.json();
-    console.log("Signed Message:", signedMessage);
     const fid = signedMessage?.untrustedData?.fid;
 
     // Validate the signed message if it exists
     if (signedMessage.trustedData) {
-      console.log("Validating trusted data");
       const isMessageValid = await validateMessage(
         signedMessage.trustedData.messageBytes
       );
-      console.log("Is message valid:", isMessageValid);
 
       if (!isMessageValid) {
         console.error("Invalid message");
