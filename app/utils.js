@@ -1,6 +1,6 @@
 import { getHubRpcClient, Message } from "@farcaster/hub-web";
 import { NextResponse } from "next/server";
-import { init, fetchQuery } from "@airstack/node";
+import { init, fetchQueryWithPagination } from "@airstack/node";
 // hi
 export const BASE_URL = process.env.BASE_URL;
 
