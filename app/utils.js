@@ -26,46 +26,68 @@ const fetchFollowersQuery = (fid) => `
 `;
 
 async function fetchFollowers(fid) {
-  const query = fetchFollowersQuery(fid);
-  const { data, error } = await fetchQuery(query);
+  let allFollowers = [];
+  let query = fetchFollowersQuery(fid);
+  let response = await fetchQueryWithPagination(query);
 
-  if (error) {
-    console.error(`Error fetching followers for FID ${fid}:`, error);
-    return [];
+  while (true) {
+    const { data, error, hasNextPage, getNextPage } = response;
+
+    if (error) {
+      console.error(`Error fetching followers for FID ${fid}:`, error);
+      break;
+    }
+
+    if (data && data.SocialFollowers && data.SocialFollowers.Follower) {
+      let followers = data.SocialFollowers.Follower.filter(
+        (f) =>
+          f.followerAddress &&
+          f.followerAddress.socials &&
+          f.followerAddress.socials.length > 0
+      ).map((f) => f.followerAddress.socials[0].userId);
+
+      allFollowers.push(...followers);
+    } else {
+      console.warn(`No followers data found for FID ${fid}`);
+    }
+
+    if (!hasNextPage) break;
+    response = await getNextPage();
   }
 
-  // Check if the data is structured as expected
-  if (!data || !data.SocialFollowers || !data.SocialFollowers.Follower) {
-    console.warn(`No followers data found for FID ${fid}`);
-    return [];
-  }
-
-  return data.SocialFollowers.Follower.filter(
-    (f) =>
-      f.followerAddress &&
-      f.followerAddress.socials &&
-      f.followerAddress.socials.length > 0
-  ).map((f) => f.followerAddress.socials[0].userId);
+  return allFollowers;
 }
 
-async function findConnectionPath(startFid, targetFid = 5650) {
-  let queue = [{ fid: startFid, path: [] }];
+async function findConnectionPath(startFid, targetFid = 5650, maxDepth = 5) {
+  let queue = [{ fid: startFid, path: [], depth: 0 }];
   let visited = new Set();
 
   while (queue.length > 0) {
-    const { fid, path } = queue.shift();
+    let batch = queue.splice(0, 10); // Process in batches of 10
+    let followerPromises = batch.map(({ fid }) => fetchFollowers(fid));
 
-    if (fid === targetFid) {
-      return path.concat(fid);
-    }
+    let results = await Promise.all(followerPromises);
 
-    if (!visited.has(fid)) {
-      visited.add(fid);
-      const followers = await fetchFollowers(fid);
+    for (let i = 0; i < batch.length; i++) {
+      let { fid, path, depth } = batch[i];
+      let followers = results[i];
 
-      for (const followerFid of followers) {
-        if (!visited.has(followerFid)) {
-          queue.push({ fid: followerFid, path: path.concat(fid) });
+      if (depth > maxDepth) continue; // Limit search depth
+
+      if (fid === targetFid) {
+        return path.concat(fid);
+      }
+
+      if (!visited.has(fid)) {
+        visited.add(fid);
+        for (const followerFid of followers) {
+          if (!visited.has(followerFid)) {
+            queue.push({
+              fid: followerFid,
+              path: path.concat(fid),
+              depth: depth + 1,
+            });
+          }
         }
       }
     }
