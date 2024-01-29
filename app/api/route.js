@@ -22,23 +22,25 @@ export async function POST(req) {
         return NextResponse.json({ error: "Invalid message" }, { status: 400 });
       }
     }
-
-    const choice = signedMessage.untrustedData.buttonIndex;
-    console.log("Choice from untrusted data:", choice);
-
     let htmlContent = "";
 
+    await generateFarcasterFrame(fid);
+
     // Generate HTML based on the choice
-    htmlContent = await generateFarcasterFrame(fid, choice);
-    console.log("Generated HTML content:", htmlContent);
+    // htmlContent = await generateFarcasterFrame(fid);
+    // console.log("Generated HTML content:", htmlContent);
+
+    const response = new NextResponse("Yup", {
+      status: 200,
+    });
 
     // Create a new response with HTML content
-    const response = new NextResponse(htmlContent, {
-      status: 200,
-      headers: {
-        "Content-Type": "text/html",
-      },
-    });
+    // const response = new NextResponse(htmlContent, {
+    //   status: 200,
+    //   headers: {
+    //     "Content-Type": "text/html",
+    //   },
+    // });
 
     return response;
   } catch (error) {

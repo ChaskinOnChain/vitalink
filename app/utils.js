@@ -4,114 +4,83 @@ import { init, fetchQuery } from "@airstack/node";
 
 export const BASE_URL = process.env.BASE_URL;
 
-// generate an html page with the relevant opengraph tags
-export async function generateFarcasterFrame(fID, choice) {
-  init(process.env.AIRSTACK_API);
-
-  let blockchain;
-  switch (choice) {
-    case 1:
-      blockchain = "ethereum";
-      break;
-    case 2:
-      blockchain = "base";
-      break;
-    case 3:
-      blockchain = "zora";
-      break;
-    default:
-      blockchain = "ethereum"; // Default to ethereum if choice is invalid
-  }
-
-  // Ensure the GraphQL query is properly formatted
+async function fetchFarcasterFollowers(fid) {
   const query = `
-      query NFTsOwnedByFarcasterUser {
-        TokenBalances(
-          input: {
-            filter: {
-              owner: { _in: ["fc_fid:${fID}"] }
-              tokenType: { _in: [ERC1155, ERC721] }
+    query {
+      SocialFollowers(input: {
+        filter: {
+          dappName: { _eq: "farcaster" }
+          identity: { _eq: "${fid}" }
+        }
+        limit: 200
+      }) {
+        Follower {
+          followingAddress {
+            addresses
+            socials(input: { filter: { dappName: { _eq: "farcaster" } } }) {
+              userId
             }
-            blockchain: ${blockchain}
-            limit: 50
-          }
-        ) {
-          TokenBalance {
-            owner {
-              socials(input: { filter: { dappName: { _eq: farcaster } } }) {
-                profileName
-                userId
-                userAssociatedAddresses
-              }
-            }
-            amount
-            tokenAddress
-            tokenId
-            tokenType
-            tokenNfts {
-              contentValue {
-                image {
-                  extraSmall
-                  small
-                  medium
-                  large
-                }
-              }
-            }
-          }
-          pageInfo {
-            nextCursor
-            prevCursor
           }
         }
       }
-    `;
+    }
+  `;
 
   const { data, error } = await fetchQuery(query);
+  return error ? [] : data.SocialFollowers.Follower;
+}
 
-  // Check for error or if data is empty
-  if (error || !data.TokenBalances.TokenBalance.length) {
-    console.error("Error fetching data or no data available:", error);
-    return null; // Or handle this case as you see fit
-  }
+async function findConnectionPath(startFid, targetFid) {
+  let queue = [startFid];
+  let visited = new Set();
+  let pathTracker = { [startFid]: [] };
 
-  const images = data.TokenBalances.TokenBalance.map((tb) => {
-    // Check if the nested properties exist
-    if (
-      tb.tokenNfts &&
-      tb.tokenNfts.contentValue &&
-      tb.tokenNfts.contentValue.image
-    ) {
-      return tb.tokenNfts.contentValue.image.small;
+  while (queue.length > 0) {
+    const currentFid = queue.shift();
+
+    if (currentFid === targetFid) {
+      return pathTracker[currentFid];
     }
-    return null;
-  }).filter((image) => image !== null); // Filter out any null values
 
-  // Check if images array is empty
-  if (images.length === 0) {
-    console.error("No images found");
-    return null; // Or handle this case as you see fit
+    visited.add(currentFid);
+    const followers = await fetchFarcasterFollowers(currentFid);
+
+    for (const follower of followers) {
+      const followerId = follower.followingAddress.socials[0].userId;
+      if (!visited.has(followerId)) {
+        visited.add(followerId);
+        queue.push(followerId);
+        pathTracker[followerId] = [...pathTracker[currentFid], currentFid];
+      }
+    }
   }
 
-  // Select a random image
-  const randomImage = images[Math.floor(Math.random() * images.length)];
+  return []; // No connection path found
+}
 
-  return `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta property="fc:frame" content="vNext" />
-      <meta property="fc:frame:image" content="${randomImage}" />
-      <meta property="fc:frame:button:1" content="Ethereum" />
-      <meta property="fc:frame:button:2" content="Base" />
-      <meta property="fc:frame:button:3" content="Zora" />
-      <meta property="fc:frame:post_url" content="${process.env.BASE_URL}/api" />
-    </head>
-    <body>
-      
-    </body>
-    </html>
-  `;
+// generate an html page with the relevant opengraph tags
+export async function generateFarcasterFrame(fID) {
+  init(process.env.AIRSTACK_API);
+
+  const connectionPath = await fetchFarcasterFollowers(fID);
+  console.log("Connection Path:", connectionPath);
+
+  // return `
+  //   <!DOCTYPE html>
+  //   <html lang="en">
+  //   <head>
+  //     <meta property="fc:frame" content="vNext" />
+  //     <meta property="fc:frame:image" content="${randomImage}" />
+  //     <meta property="fc:frame:button:1" content="Ethereum" />
+  //     <meta property="fc:frame:button:2" content="Base" />
+  //     <meta property="fc:frame:button:3" content="Zora" />
+  //     <meta property="fc:frame:post_url" content="${process.env.BASE_URL}/api" />
+  //   </head>
+  //   <body>
+
+  //   </body>
+  //   </html>
+  // `;
 }
 
 export async function validateMessage(messageBytes) {

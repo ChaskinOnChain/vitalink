@@ -9,9 +9,7 @@ export async function generateMetadata() {
     other: {
       "fc:frame": "vNext",
       "fc:frame:image": `${process.env.BASE_URL}/ethereum.svg`,
-      "fc:frame:button:1": "Ethereum",
-      "fc:frame:button:2": "Base",
-      "fc:frame:button:3": "Zora",
+      "fc:frame:button:1": "Vitalink",
       "fc:frame:post_url": `${process.env.BASE_URL}/api`,
     },
     metadataBase: new URL(process.env.BASE_URL ?? ""),
