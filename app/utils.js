@@ -12,7 +12,7 @@ const fetchFollowersQuery = (fid) => `
         identity: { _in: ["fc_fid:${fid}"] }
       }
       blockchain: ALL
-      limit: 50000
+      limit: 200
     }) {
       Follower {
         followerAddress {
