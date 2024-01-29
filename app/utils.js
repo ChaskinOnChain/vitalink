@@ -1,6 +1,6 @@
 import { getHubRpcClient, Message } from "@farcaster/hub-web";
 import { NextResponse } from "next/server";
-import { init, fetchQueryWithPagination } from "@airstack/node";
+import { init, fetchQuery } from "@airstack/node";
 // hi
 export const BASE_URL = process.env.BASE_URL;
 
@@ -25,37 +25,58 @@ const fetchFollowersQuery = (fid) => `
   }
 `;
 
-async function fetchFollowers(fid) {
-  let allFollowers = [];
-  let query = fetchFollowersQuery(fid);
-  let response = await fetchQueryWithPagination(query);
-
-  while (true) {
-    const { data, error, hasNextPage, getNextPage } = response;
-
-    if (error) {
-      console.error(`Error fetching followers for FID ${fid}:`, error);
-      break;
+// Fetch the accounts that a specific FID is following
+const fetchFollowingQuery = (fid) => `
+  query {
+    SocialFollowings(input: {
+      filter: {
+        dappName: { _eq: "farcaster" }
+        identity: { _eq: "${fid}" }
+      }
+      limit: 200
+    }) {
+      Following {
+        followingAddress {
+          socials(input: { filter: { dappName: { _eq: "farcaster" } } }) {
+            userId
+          }
+        }
+      }
     }
+  }
+`;
 
-    if (data && data.SocialFollowers && data.SocialFollowers.Follower) {
-      let followers = data.SocialFollowers.Follower.filter(
-        (f) =>
-          f.followerAddress &&
-          f.followerAddress.socials &&
-          f.followerAddress.socials.length > 0
-      ).map((f) => f.followerAddress.socials[0].userId);
-
-      allFollowers.push(...followers);
-    } else {
-      console.warn(`No followers data found for FID ${fid}`);
-    }
-
-    if (!hasNextPage) break;
-    response = await getNextPage();
+// Function to fetch the following list
+async function fetchFollowing(fid) {
+  let query = fetchFollowingQuery(fid);
+  let { data, error } = await fetchQuery(query);
+  if (error) {
+    console.error(`Error fetching following for FID ${fid}:`, error);
+    return [];
   }
 
-  return allFollowers;
+  return data.SocialFollowings.Following.map(
+    (f) => f.followingAddress.socials[0].userId
+  );
+}
+
+  console.log(
+    `No connection found through Vitalik's following for FID ${inputFid}`
+  );
+  return [];
+}
+
+async function fetchFollowers(fid) {
+  let query = fetchFollowersQuery(fid);
+  let { data, error } = await fetchQuery(query);
+  if (error) {
+    console.error(`Error fetching followers for FID ${fid}:`, error);
+    return [];
+  }
+
+  return data.SocialFollowers.Follower.map(
+    (f) => f.followerAddress.socials[0].userId
+  );
 }
 
 async function findConnectionPath(
@@ -105,19 +126,36 @@ async function checkDirectOrSecondDegreeConnection(
   inputFid,
   vitalikFid = 5650
 ) {
+  console.log(
+    `Checking direct and second-degree connections for FID ${inputFid}`
+  );
+
   let vitalikFollowers = await fetchFollowers(vitalikFid);
+  console.log(`Vitalik's followers: ${vitalikFollowers.length}`);
+
   if (vitalikFollowers.includes(inputFid)) {
-    return [vitalikFid, inputFid]; // Direct connection found
+    console.log(
+      `Direct connection found between ${vitalikFid} and ${inputFid}`
+    );
+    return [vitalikFid, inputFid];
   }
 
   for (let followerFid of vitalikFollowers) {
+    console.log(`Checking followers of ${followerFid}`);
     let followerFollowers = await fetchFollowers(followerFid);
+
     if (followerFollowers.includes(inputFid)) {
-      return [vitalikFid, followerFid, inputFid]; // Second-degree connection found
+      console.log(
+        `Second-degree connection found: ${vitalikFid} -> ${followerFid} -> ${inputFid}`
+      );
+      return [vitalikFid, followerFid, inputFid];
     }
   }
 
-  return []; // No direct or second-degree connection found
+  console.log(
+    `No direct or second-degree connection found for FID ${inputFid}`
+  );
+  return [];
 }
 
 // generate an html page with the relevant opengraph tags
@@ -136,6 +174,7 @@ export async function generateFarcasterFrame(fID) {
     // Return or process this path as needed
   } else {
     // If no direct or second-degree connection, proceed with a comprehensive search
+    console.log(`Proceeding with comprehensive search for FID ${fID}`);
     const connectionPath = await findConnectionPath(fID);
     console.log("Comprehensive Connection Path:", connectionPath);
     // Return or process this comprehensive path as needed
