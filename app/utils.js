@@ -101,12 +101,45 @@ async function findConnectionPath(
   return []; // Path not found
 }
 
+async function checkDirectOrSecondDegreeConnection(
+  inputFid,
+  vitalikFid = 5650
+) {
+  let vitalikFollowers = await fetchFollowers(vitalikFid);
+  if (vitalikFollowers.includes(inputFid)) {
+    return [vitalikFid, inputFid]; // Direct connection found
+  }
+
+  for (let followerFid of vitalikFollowers) {
+    let followerFollowers = await fetchFollowers(followerFid);
+    if (followerFollowers.includes(inputFid)) {
+      return [vitalikFid, followerFid, inputFid]; // Second-degree connection found
+    }
+  }
+
+  return []; // No direct or second-degree connection found
+}
+
 // generate an html page with the relevant opengraph tags
 export async function generateFarcasterFrame(fID) {
   init(process.env.AIRSTACK_API);
 
-  const connectionPath = await findConnectionPath(fID);
-  console.log("Connection Path:", connectionPath);
+  // First, try to find a direct or second-degree connection
+  const directOrSecondDegreePath = await checkDirectOrSecondDegreeConnection(
+    fID
+  );
+  if (directOrSecondDegreePath.length > 0) {
+    console.log(
+      "Direct or Second Degree Connection Path:",
+      directOrSecondDegreePath
+    );
+    // Return or process this path as needed
+  } else {
+    // If no direct or second-degree connection, proceed with a comprehensive search
+    const connectionPath = await findConnectionPath(fID);
+    console.log("Comprehensive Connection Path:", connectionPath);
+    // Return or process this comprehensive path as needed
+  }
 
   // return `
   //   <!DOCTYPE html>
